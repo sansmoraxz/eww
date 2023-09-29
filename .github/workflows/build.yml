@@ -24,6 +24,10 @@ jobs:
               components: rustfmt
          - uses: actions/checkout@v4
          - uses: Swatinem/rust-cache@v2
+           with:
+            shared-key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+            cache-all-crates: true
+            cache-targets: true
          - uses: r7kamura/rust-problem-matchers@v1
          - name: Check formatting
            run: cargo fmt -- --check
@@ -52,6 +56,10 @@ jobs:
           override: true
           components: rustfmt
       - uses: Swatinem/rust-cache@v2
+        with:
+          shared-key: ${{ runner.os }}-rust-${{ hashFiles('**/Cargo.lock') }}
+          cache-all-crates: true
+          cache-targets: true
       - uses: r7kamura/rust-problem-matchers@v1
       - name: Build ${{ matrix.feature }} only
         run: |
