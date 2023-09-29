@@ -22,7 +22,7 @@ jobs:
               toolchain: nightly
               override: true
               components: rustfmt
-         - uses: actions/checkout@v2
+         - uses: actions/checkout@v4
          - uses: Swatinem/rust-cache@v1
          - uses: r7kamura/rust-problem-matchers@v1
          - name: Check formatting
@@ -31,11 +31,6 @@ jobs:
            run: cargo check
          - name: Run tests
            run: cargo test
-         - name: Upload target as artifact
-           uses: actions/upload-artifact@v2
-           with:
-              name: target
-              path: target
 
    build-release:
     needs: [validate-build]
@@ -49,23 +44,20 @@ jobs:
     steps:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install libgtk-3-dev libgtk-layer-shell-dev
+      - uses: actions/checkout@v4
       - name: Set up
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
           components: rustfmt
-      - uses: actions/checkout@v2
-      - name: Download target from previous job
-        uses: actions/download-artifact@v2
-        with:
-          name: target
       - name: Build ${{ matrix.feature }} only
-        if: matrix.feature != 'none'
-        run: cargo build --release --no-default-features --features=${{ matrix.feature }}
-      - name: Build no default features
-        if: matrix.feature == 'none'
-        run: cargo build --release --no-default-features
+        run: |
+          if [ ${{ matrix.feature }} = "none" ]; then
+            cargo build --release --no-default-features
+          else
+            cargo build --release --no-default-features --features=${{ matrix.feature }}
+          fi
       - name: Run list directory
         run: ls -R target/
       - name: Copy built artifacts
