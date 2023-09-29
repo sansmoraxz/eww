@@ -10,14 +10,8 @@ env:
    CARGO_TERM_COLOR: always
 
 jobs:
-   build:
+   validate-build:
       runs-on: ubuntu-latest
-      strategy:
-        matrix:
-          feature:
-            - x11
-            - wayland
-            - none
 
       steps:
          - name: Install dependencies
@@ -37,22 +31,42 @@ jobs:
            run: cargo check
          - name: Run tests
            run: cargo test
-         - name: Build ${{ matrix.feature }} only
-           if: matrix.feature != 'none'
-           run: cargo build --no-default-features --features=${{ matrix.feature }}
-         - name: Build no default features
-           if: matrix.feature == 'none'
-           run: cargo build --no-default-features
-         - name: Run list directory
-           run: ls -R target/
-         - name: Copy built artifacts
-           run: |
-              mkdir -p artifacts
-              cp target/release/eww artifacts/eww-${{ matrix.feature }}
-         - name: Create github release
-           uses: softprops/action-gh-release@v1
-           with:
-              tag_name: ${{ github.ref }}
-              files: artifacts/*
-              draft: true
-              prerelease: true
+
+   build-release:
+    runs-on: ubuntu-latest
+    strategy:
+      matrix:
+        feature:
+          - x11
+          - wayland
+          - none
+    steps:
+      - name: Install dependencies
+        run: sudo apt-get update && sudo apt-get install libgtk-3-dev libgtk-layer-shell-dev
+      - name: Set up
+        uses: actions-rs/toolchain@v1
+        with:
+          toolchain: nightly
+          override: true
+      - uses: actions/checkout@v2
+      - uses: Swatinem/rust-cache@v1
+      - uses: r7kamura/rust-problem-matchers@v1
+      - name: Build ${{ matrix.feature }} only
+        if: matrix.feature != 'none'
+        run: cargo build --release --no-default-features --features=${{ matrix.feature }}
+      - name: Build no default features
+        if: matrix.feature == 'none'
+        run: cargo build --release --no-default-features
+      - name: Run list directory
+        run: ls -R target/
+      - name: Copy built artifacts
+        run: |
+          mkdir -p artifacts
+          cp target/release/eww artifacts/eww-${{ matrix.feature }}
+      - name: Create github release
+        uses: softprops/action-gh-release@v1
+        with:
+          tag_name: ${{ github.ref }}
+          files: artifacts/*
+          draft: true
+          prerelease: true
