@@ -81,9 +81,9 @@ jobs:
         id: meta
         run: |
           cargo metadata --format-version 1 --no-deps > metadata.json
-          cat metadata.json | jq '.packages[0].version' | awk '{print "VERSION="$1}' >> $GITHUB_OUTPUT
-          cat metadata.json | jq '.packages[0].name' | awk '{print "NAME="$1}' >> $GITHUB_OUTPUT
-          cat metadata.json | jq '.packages[0].description' | awk '{print "DESCRIPTION="$1}' >> $GITHUB_OUTPUT
+          cat metadata.json | jq '.packages[0].description' | tr -d '"' | awk '{print "DESCRIPTION="$0}' >> $GITHUB_OUTPUT
+          cat metadata.json | jq '.packages[0].version' | tr -d '"' | awk '{print "VERSION="$0}' >> $GITHUB_OUTPUT
+          cat metadata.json | jq '.packages[0].name' | tr -d '"' | awk '{print "NAME="$1}' >> $GITHUB_OUTPUT
       - name: Create github release
         uses: softprops/action-gh-release@v1
         with:
