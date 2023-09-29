@@ -76,7 +76,7 @@ jobs:
         run: |
           mkdir -p artifacts
           cp target/release/eww artifacts/
-          zip artifacts/eww-${{ runner.os }}-${{ matrix.feature }}.zip artifacts/eww
+          (cd artifacts && zip eww-${{ runner.os }}-${{ matrix.feature }}.zip eww)
       - name: Cargo metadata
         id: meta
         run: |
