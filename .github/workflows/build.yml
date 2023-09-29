@@ -31,6 +31,11 @@ jobs:
            run: cargo check
          - name: Run tests
            run: cargo test
+         - name: Upload target as artifact
+           uses: actions/upload-artifact@v2
+           with:
+              name: target
+              path: target
 
    build-release:
     needs: [validate-build]
@@ -50,8 +55,10 @@ jobs:
           toolchain: nightly
           override: true
       - uses: actions/checkout@v2
-      - uses: Swatinem/rust-cache@v1
-      - uses: r7kamura/rust-problem-matchers@v1
+      - name: Download target from previous job
+        uses: actions/download-artifact@v2
+        with:
+          name: target
       - name: Build ${{ matrix.feature }} only
         if: matrix.feature != 'none'
         run: cargo build --release --no-default-features --features=${{ matrix.feature }}
@@ -64,10 +71,12 @@ jobs:
         run: |
           mkdir -p artifacts
           cp target/release/eww artifacts/eww-${{ matrix.feature }}
+          zip artifacts/eww-${{ matrix.feature }}.zip artifacts/eww-${{ matrix.feature }}
       - name: Create github release
         uses: softprops/action-gh-release@v1
         with:
           tag_name: ${{ github.ref }}
-          files: artifacts/*
+          files: |
+            artifacts/*.zip
           draft: true
           prerelease: true
