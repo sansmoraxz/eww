@@ -73,13 +73,24 @@ jobs:
       - name: Copy built artifacts
         run: |
           mkdir -p artifacts
-          cp target/release/eww artifacts/eww-${{ matrix.feature }}
-          zip artifacts/eww-${{ matrix.feature }}.zip artifacts/eww-${{ matrix.feature }}
+          cp target/release/eww artifacts/
+          zip artifacts/eww-${{ runner.os }}-${{ matrix.feature }}.zip artifacts/eww
+      - name: Cargo metadata
+        id: meta
+        run: |
+          cargo metadata --format-version 1 --no-deps > metadata.json
+          cat metadata.json | jq '.packages[0].version' | awk '{print "VERSION="$1}' >> $GITHUB_OUTPUT
+          cat metadata.json | jq '.packages[0].name' | awk '{print "NAME="$1}' >> $GITHUB_OUTPUT
+          cat metadata.json | jq '.packages[0].description' | awk '{print "DESCRIPTION="$1}' >> $GITHUB_OUTPUT
       - name: Create github release
         uses: softprops/action-gh-release@v1
         with:
-          tag_name: ${{ github.ref }}
+          tag_name: v${{ steps.meta.outputs.VERSION }}
           files: |
             artifacts/*.zip
           draft: true
           prerelease: true
+          body: |
+            name: ${{ steps.meta.outputs.NAME }}
+            version: ${{ steps.meta.outputs.VERSION }}
+            description: ${{ steps.meta.outputs.DESCRIPTION }}
