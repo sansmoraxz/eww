@@ -23,7 +23,7 @@ jobs:
               override: true
               components: rustfmt
          - uses: actions/checkout@v4
-         - uses: Swatinem/rust-cache@v1
+         - uses: Swatinem/rust-cache@v2
          - uses: r7kamura/rust-problem-matchers@v1
          - name: Check formatting
            run: cargo fmt -- --check
@@ -51,6 +51,8 @@ jobs:
           toolchain: nightly
           override: true
           components: rustfmt
+      - uses: Swatinem/rust-cache@v2
+      - uses: r7kamura/rust-problem-matchers@v1
       - name: Build ${{ matrix.feature }} only
         run: |
           if [ ${{ matrix.feature }} = "none" ]; then
