@@ -43,6 +43,8 @@ jobs:
          - name: Build no default features
            if: matrix.feature == 'none'
            run: cargo build --no-default-features
+         - name: Run list directory
+           run: ls -R target/
          - name: Copy built artifacts
            run: |
               mkdir -p artifacts
