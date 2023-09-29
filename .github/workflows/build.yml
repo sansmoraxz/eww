@@ -16,11 +16,12 @@ jobs:
       steps:
          - name: Install dependencies
            run: sudo apt-get update && sudo apt-get install libgtk-3-dev libgtk-layer-shell-dev
-         - name: Set up
+         - name: Set up toolchain
            uses: actions-rs/toolchain@v1
            with:
               toolchain: nightly
               override: true
+              profile: minimal
               components: rustfmt
          - uses: actions/checkout@v4
          - uses: Swatinem/rust-cache@v2
@@ -49,11 +50,12 @@ jobs:
       - name: Install dependencies
         run: sudo apt-get update && sudo apt-get install libgtk-3-dev libgtk-layer-shell-dev
       - uses: actions/checkout@v4
-      - name: Set up
+      - name: Set up toolchain
         uses: actions-rs/toolchain@v1
         with:
           toolchain: nightly
           override: true
+          profile: minimal
           components: rustfmt
       - uses: Swatinem/rust-cache@v2
         with:
